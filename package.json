@@ -1,5 +1,5 @@
 {
-  "name": "agent-profile-orchestrator",
+  "name": "orchestrate",
   "version": "1.0.0",
   "private": true,
   "description": "Record and apply local coding-agent profiles across Windows, macOS, and Linux.",

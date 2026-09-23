@@ -1,16 +1,20 @@
-# Agent Profile Orchestrator
+![Orchestrate](./assets/ascii-art-text.png)
+# ORCHESTRATE
+## Agent Profile Loader
 
 A dependency-free CLI for recording and applying coding-agent configurations. Windows is the primary platform; the same CLI supports macOS and Linux. Requires **Node.js 20 or newer** and npm.
 
 ## Install on PATH
-
 Keep this repository at a permanent location. From its root, run:
 
 ```sh
 npm link
 ```
 
-This registers `orchestrate` in npm's global executable directory, creating Windows command wrappers or a macOS/Linux executable link. If your terminal cannot find it, ensure npm's global executable directory is on your user PATH, then open a new terminal. Run `npm prefix -g` to find the prefix: Windows executables live directly there (usually `%APPDATA%\npm`); macOS/Linux executables live in its `bin` subdirectory. Your Node installation must allow writes to that prefix.
+This registers `orchestrate` in npm's global executable directory, creating Windows command wrappers or a macOS/Linux executable link.
+ - If your terminal cannot find it, ensure npm's global executable directory is on your user PATH, then open a new terminal.
+ - Run `npm prefix -g` to find the prefix: Windows executables live directly there (usually `%APPDATA%\npm`)
+ - macOS/Linux executables live in its `bin` subdirectory. Your Node installation must allow writes to that prefix.
 
 On Windows, if PowerShell's execution policy blocks npm's `.ps1` wrappers, use `npm.cmd link` and `orchestrate.cmd` instead. Command Prompt also supports `orchestrate`.
 
@@ -30,18 +34,25 @@ Run commands from the **project directory** you want to record or configure:
 
 ```sh
 orchestrate record my-profile "My team's agent setup"
+orchestrate record full-project "Complete project template" --all
 orchestrate ls
 orchestrate my-profile
 orchestrate my-profile "Setting up another project"
 orchestrate archive my-profile
+orchestrate unarchive my-profile
+orchestrate delete my-profile
 ```
 
 - `record <name> [description]` copies supported project configuration into a new `profiles/<name>/` and writes its `description.txt`. Existing profiles are never replaced. Recording with no supported files fails without creating a profile.
+- `record <name> [description] --all` records all files and folders recursively, including hidden files, Git metadata, and dependencies. The flag may also go before the name or description. The actual profile and archive storage directories are excluded to prevent self-copying; other directories named `profiles` or `archived` are included. The root `description.txt` remains reserved for the supplied profile description; nested files of that name are preserved. Symbolic links and junctions remain unsupported. Without `--all`, recording still captures only the agent configuration listed below.
 - `<name> [description]` finds an exact, case-sensitive profile name and merges all its contents into the current directory. The optional description is a log label; it does not change the stored profile. Unrelated destination files remain in place.
 - `ls` lists active profiles with their `description.txt`, or `(no description)`.
-- `archive <name>` moves the profile to `archived/<name>/`. An existing archive with that name is never replaced. To restore one, move its directory back into `profiles/`.
+- `archive <name>` moves the profile to `archived/<name>/`. An existing archive with that name is never replaced.
+- `unarchive <name>` moves an archived profile back to `profiles/<name>/`, including its description. An existing active profile is never replaced.
+- `delete <name> [--active|--archived]` permanently removes a stored profile. It searches both folders; if the name exists in both, specify `--active` or `--archived`. An explicit scope never falls back to the other folder. Deletion runs immediately without a confirmation prompt and does not remove files previously applied to a project.
 - `help` displays usage. Every operation logs its storage location, copied files, and outcome. Completion output contains only shell code or names.
 
+## Overwrite Confirmation
 When destination files already exist, the CLI displays:
 
 ```text
@@ -74,7 +85,7 @@ Recording inspects these paths at the current directory's root. It does not sear
 
 ## Tab completion
 
-Install shell completion once after `npm link`. Names are read live, so recording or archiving a profile immediately updates suggestions. Tab completes profile names for `orchestrate <name>` and `orchestrate archive <name>`, along with command names. The new name for `record` is entered manually.
+Install shell completion once after `npm link`. Names are read live, so profile changes immediately update suggestions. Tab completes active names for `orchestrate <name>` and `archive`, archived names for `unarchive`, and names from both folders for `delete`, along with command names. The new name for `record` is entered manually. Reload completion after upgrading to get the new commands.
 
 ### Windows PowerShell / PowerShell 7
 
